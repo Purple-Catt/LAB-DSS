@@ -1,6 +1,7 @@
 import os
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Copies are used to preserve the original datasets
 people = open(ROOT_DIR + '/Data/PeopleCopy.csv', 'r')
 crashes = open(ROOT_DIR + '/Data/CrashesCopy.csv', 'r')
 vehicles = open(ROOT_DIR + '/Data/VehiclesCopy.csv', 'r')
@@ -14,14 +15,16 @@ crashes.close()
 vehicles.close()
 
 people = open(ROOT_DIR + '/Data/PeopleCopy.csv', 'w')
-crashes = open(ROOT_DIR + '/Data/CrashesCopy.csv', 'w')
-vehicles = open(ROOT_DIR + '/Data/VehiclesCopy.csv', 'w')
+# crashes = open(ROOT_DIR + '/Data/CrashesCopy.csv', 'w')
+# vehicles = open(ROOT_DIR + '/Data/VehiclesCopy.csv', 'w')
 
 people_columns = people_lines.pop(0).split(',')
-crashes_columns = crashes_lines.pop(0).split(',')
-vehicles_columns = vehicles_lines.pop(0).split(',')
+crashes_columns = crashes_lines[0].split(',')
+vehicles_columns = vehicles_lines[0].split(',')
 
 for idx, line in enumerate(people_lines):
+    # Skip the first line that contains the columns names
+
     split_line = line.split(',')
     # VEHICLE_ID null means that the person is PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, so it can be labelled as 0
     if split_line[people_columns.index('VEHICLE_ID')] == '':
@@ -57,6 +60,7 @@ for idx, line in enumerate(people_lines):
 
     people_lines[idx] = ','.join(split_line)
 
+people.write(','.join(people_columns))
 people.writelines(people_lines)
 
 people.close()
