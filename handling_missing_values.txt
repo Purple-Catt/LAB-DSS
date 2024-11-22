@@ -2,7 +2,7 @@ People
 VEHICLE_ID null means that the person is a PEDESTRIAN, so it can be labelled as 0
 CITY and STATE irretrievable
 SEX null values can be labelled as X
-AGE irretrievable
+AGE null values can be substituted using the mode
 SAFETY_EQUIPMENT null values can be labelled as USAGE UNKNOWN
 AIRBAG_DEPLOYED null values can be labelled as DEPLOYMENT UNKNOWN
 EJECTION null values can be labelled as UNKNOWN
@@ -11,7 +11,7 @@ DRIVER_ACTION null values can be labelled as UNKNOWN
 DRIVER_VISION null values can be labelled as UNKNOWN
 PHYSICAL_CONDITION null values can be labelled as UNKNOWN
 BAC_RESULT ___TO BE DECIDED___
-DAMAGE ___TO BE DECIDED___
+DAMAGE null values can be set to 0
 
 Crashes
 REPORT_TYPE

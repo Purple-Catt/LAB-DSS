@@ -17,16 +17,33 @@ vehicles.close()
 
 people = open(ROOT_DIR + '/Data/People - Copy.csv', 'w')
 crashes = open(ROOT_DIR + '/Data/Crashes - Copy.csv', 'w')
-# vehicles = open(ROOT_DIR + '/Data/Vehicles - Copy.csv', 'w')
+vehicles = open(ROOT_DIR + '/Data/Vehicles - Copy.csv', 'w')
 
 people_columns = people_lines.pop(0).split(',')
 crashes_columns = crashes_lines.pop(0).split(',')
 vehicles_columns = vehicles_lines.pop(0).split(',')
 
-for idx, line in enumerate(people_lines):
-    # Skip the first line that contains the columns names
+# Computing mode for attribute AGE
+mode = dict()
 
+for idx, line in enumerate(people_lines):
     split_line = line.split(',')
+    try:
+        mode[split_line[people_columns.index('AGE')]] += 1
+
+    except KeyError:
+        mode[split_line[people_columns.index('AGE')]] = 1
+
+mx = 0
+max_k = 0
+for k, v in mode.items():
+    if v > mx:
+        mx = v
+        max_k = k
+
+for idx, line in enumerate(people_lines):
+    split_line = line.split(',')
+
     # VEHICLE_ID null means that the person is PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, so it can be labelled as 0
     if split_line[people_columns.index('VEHICLE_ID')] == '':
         split_line[people_columns.index('VEHICLE_ID')] = '0'
@@ -34,6 +51,10 @@ for idx, line in enumerate(people_lines):
     # SEX null values can be labelled as X
     if split_line[people_columns.index('SEX')] == '':
         split_line[people_columns.index('SEX')] = 'X'
+
+    # AGE null values can be substituted using the mode
+    if split_line[people_columns.index('AGE')] == '':
+        split_line[people_columns.index('AGE')] = max_k
 
     # SAFETY_EQUIPMENT null values can be labelled as USAGE UNKNOWN
     if split_line[people_columns.index('SAFETY_EQUIPMENT')] == '':
@@ -58,6 +79,10 @@ for idx, line in enumerate(people_lines):
     # PHYSICAL_CONDITION null values can be labelled as UNKNOWN
     if split_line[people_columns.index('PHYSICAL_CONDITION')] == '':
         split_line[people_columns.index('PHYSICAL_CONDITION')] = 'UNKNOWN'
+
+    # DAMAGE null values can be set to 0
+    if split_line[people_columns.index('DAMAGE')] == '':
+        split_line[people_columns.index('DAMAGE')] = '0'
 
     people_lines[idx] = ','.join(split_line)
 
@@ -86,6 +111,20 @@ for idx, line in enumerate(crashes_lines):
 
 crashes.write(','.join(crashes_columns))
 crashes.writelines(crashes_lines)
+
+# Switch to Vehicles dataset
+for idx, line in enumerate(vehicles_lines):
+    split_line = line.split(',')
+    # where UNIT_TYPE is not PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, MODEL and FIRST_CONTACT_POINT can be labelled as UNKNOWN
+    if split_line[vehicles_columns.index('UNIT_TYPE')] not in ['PEDESTRIAN', 'BICYCLE', 'NON-MOTOR VEHICLE']:
+        split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] = 'UNKNOWN'
+
+    if split_line[vehicles_columns.index('MODEL')] == '':
+        split_line[vehicles_columns.index('MODEL')] = 'UNKNOWN'
+
+
+vehicles.write(','.join(vehicles_columns))
+vehicles.writelines(vehicles_lines)
 
 people.close()
 crashes.close()
