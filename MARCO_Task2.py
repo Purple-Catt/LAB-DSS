@@ -22,6 +22,7 @@ vehicles = open(ROOT_DIR + '/Data/Vehicles - Copy.csv', 'w')
 people_columns = people_lines.pop(0).split(',')
 crashes_columns = crashes_lines.pop(0).split(',')
 vehicles_columns = vehicles_lines.pop(0).split(',')
+print(len(people_columns))
 
 # Computing mode for attribute AGE
 mode = dict()
@@ -43,7 +44,25 @@ for k, v in mode.items():
 
 for idx, line in enumerate(people_lines):
     split_line = line.split(',')
+    temp = ''
+    spare = 0
+    new_idx = 0
+    for col_idx, item in enumerate(split_line):
+        if '"' in item:
+            if spare % 2 == 0:
+                temp += item.removeprefix('"')
+                spare += 1
+                new_idx = col_idx
 
+            else:
+                temp += item.removesuffix('"')
+                spare = 0
+                split_line[new_idx] = temp
+                split_line.pop(col_idx)
+                temp = ''
+
+    split_line[people_columns.index('PERSON_ID')] = split_line[people_columns.index('PERSON_ID')].removeprefix('P')
+    split_line[people_columns.index('PERSON_ID')] = split_line[people_columns.index('PERSON_ID')].removeprefix('O')
     # VEHICLE_ID null means that the person is PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, so it can be labelled as 0
     if split_line[people_columns.index('VEHICLE_ID')] == '':
         split_line[people_columns.index('VEHICLE_ID')] = '0'
@@ -55,6 +74,13 @@ for idx, line in enumerate(people_lines):
     # AGE null values can be substituted using the mode
     if split_line[people_columns.index('AGE')] == '':
         split_line[people_columns.index('AGE')] = max_k
+
+    # CITY and STATE can be substituted with Chicago, IL, given that almost all the people are from there
+    if split_line[people_columns.index('CITY')] == '':
+        split_line[people_columns.index('CITY')] = 'CHICAGO'
+
+    if split_line[people_columns.index('STATE')] == '':
+        split_line[people_columns.index('STATE')] = 'IL'
 
     # SAFETY_EQUIPMENT null values can be labelled as USAGE UNKNOWN
     if split_line[people_columns.index('SAFETY_EQUIPMENT')] == '':
@@ -80,11 +106,21 @@ for idx, line in enumerate(people_lines):
     if split_line[people_columns.index('PHYSICAL_CONDITION')] == '':
         split_line[people_columns.index('PHYSICAL_CONDITION')] = 'UNKNOWN'
 
-    # DAMAGE null values can be set to 0
-    if split_line[people_columns.index('DAMAGE')] == '':
-        split_line[people_columns.index('DAMAGE')] = '0'
+    # BAC_RESULT null values can be substituted with TEST NOT OFFERED
+    if split_line[people_columns.index('BAC_RESULT')] == '':
+        split_line[people_columns.index('BAC_RESULT')] = 'TEST NOT OFFERED'
 
-    people_lines[idx] = ','.join(split_line)
+    # DAMAGE null values can be set to 0
+    if split_line[people_columns.index('DAMAGE\n')] == '':
+        print(split_line)
+        input()
+        split_line[people_columns.index('DAMAGE\n')] = '0'
+
+    if split_line[people_columns.index('INJURY_CLASSIFICATION')] == '':
+        continue
+
+    else:
+        people_lines[idx] = ','.join(split_line)
 
 people.write(','.join(people_columns))
 people.writelines(people_lines)
@@ -102,12 +138,21 @@ for idx, line in enumerate(crashes_lines):
         if location:
             split_line[crashes_columns.index('LATITUDE')] = str(location.latitude)
             split_line[crashes_columns.index('LONGITUDE')] = str(location.longitude)
+            split_line[crashes_columns.index('LOCATION\n')] = f'POINT ({str(location.longitude)} {str(location.latitude)})'
             print(f"Address {addr} retrieved successfully")
 
         else:
             print(f"Unable to retrieve location for address: {addr}")
 
-    crashes_lines[idx] = ','.join(split_line)
+    if (split_line[crashes_columns.index('STREET_DIRECTION')] == '' or
+            split_line[crashes_columns.index('STREET_NAME')] == '' or
+            split_line[crashes_columns.index('BEAT_OF_OCCURRENCE')] == '' or
+            split_line[crashes_columns.index('MOST_SEVERE_INJURY')] == '' or
+            split_line[crashes_columns.index('LONGITUDE')] == ''):
+        continue
+
+    else:
+        crashes_lines[idx] = ','.join(split_line)
 
 crashes.write(','.join(crashes_columns))
 crashes.writelines(crashes_lines)
@@ -117,11 +162,54 @@ for idx, line in enumerate(vehicles_lines):
     split_line = line.split(',')
     # where UNIT_TYPE is not PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, MODEL and FIRST_CONTACT_POINT can be labelled as UNKNOWN
     if split_line[vehicles_columns.index('UNIT_TYPE')] not in ['PEDESTRIAN', 'BICYCLE', 'NON-MOTOR VEHICLE']:
-        split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] = 'UNKNOWN'
+        split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'UNKNOWN'
+
+    if split_line[vehicles_columns.index('UNIT_TYPE')] in ['PEDESTRIAN', 'BICYCLE', 'NON-MOTOR VEHICLE']:
+        if split_line[vehicles_columns.index('VEHICLE_ID')] == '':
+            split_line[vehicles_columns.index('VEHICLE_ID')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('MAKE')] == '':
+            split_line[vehicles_columns.index('MAKE')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('MODEL')] == '':
+            split_line[vehicles_columns.index('MODEL')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('LIC_PLATE_STATE')] == '':
+            split_line[vehicles_columns.index('LIC_PLATE_STATE')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('VEHICLE_YEAR')] == '':
+            split_line[vehicles_columns.index('VEHICLE_YEAR')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('VEHICLE_DEFECT')] == '':
+            split_line[vehicles_columns.index('VEHICLE_DEFECT')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('VEHICLE_TYPE')] == '':
+            split_line[vehicles_columns.index('VEHICLE_TYPE')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('VEHICLE_USE')] == '':
+            split_line[vehicles_columns.index('VEHICLE_USE')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('TRAVEL_DIRECTION')] == '':
+            split_line[vehicles_columns.index('TRAVEL_DIRECTION')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('MANEUVER')] == '':
+            split_line[vehicles_columns.index('MANEUVER')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('OCCUPANT_CNT')] == '':
+            split_line[vehicles_columns.index('OCCUPANT_CNT')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] == '':
+            split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] = 'NOT_A_VEHICLE'
 
     if split_line[vehicles_columns.index('MODEL')] == '':
         split_line[vehicles_columns.index('MODEL')] = 'UNKNOWN'
 
+    if split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] == '':
+        split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] = 'UNKNOWN'
+
+    if split_line[vehicles_columns.index('LIC_PLATE_STATE')] == '':
+        person_id_vehicle = split_line[vehicles_columns.index('CRASH_UNIT_ID')]
+        for p_line in people_lines:
+            p_split = p_line.split(',')
+            if p_split[people_columns.index('PERSON_ID')] == person_id_vehicle:
+                split_line[vehicles_columns.index('LIC_PLATE_STATE')] = p_split[people_columns.index('STATE')]
+
+    if split_line[vehicles_columns.index('VEHICLE_YEAR')] == '':
+        split_line[vehicles_columns.index('VEHICLE_YEAR')] = '2015'
+
+    if int(split_line[vehicles_columns.index('VEHICLE_YEAR')]) < 2019:
+        continue
+    else:
+        vehicles_lines[idx] = ','.join(split_line)
 
 vehicles.write(','.join(vehicles_columns))
 vehicles.writelines(vehicles_lines)

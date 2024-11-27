@@ -1,6 +1,6 @@
 People
 VEHICLE_ID null means that the person is a PEDESTRIAN, so it can be labelled as 0
-CITY and STATE irretrievable
+CITY and STATE null values can be substituted with Chicago, IL, given that almost all the people are from there
 SEX null values can be labelled as X
 AGE null values can be substituted using the mode
 SAFETY_EQUIPMENT null values can be labelled as USAGE UNKNOWN
@@ -10,7 +10,7 @@ INJURY_CLASSIFICATION null values are just a few (296), these records might be d
 DRIVER_ACTION null values can be labelled as UNKNOWN
 DRIVER_VISION null values can be labelled as UNKNOWN
 PHYSICAL_CONDITION null values can be labelled as UNKNOWN
-BAC_RESULT ___TO BE DECIDED___
+BAC_RESULT null values can be substituted with TEST NOT OFFERED
 DAMAGE null values can be set to 0
 
 Crashes
