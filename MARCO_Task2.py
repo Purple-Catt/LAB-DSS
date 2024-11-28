@@ -22,7 +22,6 @@ vehicles = open(ROOT_DIR + '/Data/Vehicles - Copy.csv', 'w')
 people_columns = people_lines.pop(0).split(',')
 crashes_columns = crashes_lines.pop(0).split(',')
 vehicles_columns = vehicles_lines.pop(0).split(',')
-print(len(people_columns))
 
 # Computing mode for attribute AGE
 mode = dict()
@@ -47,22 +46,36 @@ for idx, line in enumerate(people_lines):
     temp = ''
     spare = 0
     new_idx = 0
+    merge = False
+    drop_col = list()
     for col_idx, item in enumerate(split_line):
+        if merge and '"' not in item:
+            temp += item
+            drop_col.append(col_idx)
         if '"' in item:
-            if spare % 2 == 0:
+            if spare == 0:
                 temp += item.removeprefix('"')
-                spare += 1
+                spare = 1
+                merge = True
                 new_idx = col_idx
 
             else:
                 temp += item.removesuffix('"')
                 spare = 0
+                merge = False
                 split_line[new_idx] = temp
-                split_line.pop(col_idx)
+                drop_col.append(col_idx)
                 temp = ''
+    for c in reversed(drop_col):
+        split_line.pop(c)
+
+    # Check correctness of the previous for loop results
+    if len(split_line) != len(people_columns):
+        raise IndexError
 
     split_line[people_columns.index('PERSON_ID')] = split_line[people_columns.index('PERSON_ID')].removeprefix('P')
     split_line[people_columns.index('PERSON_ID')] = split_line[people_columns.index('PERSON_ID')].removeprefix('O')
+
     # VEHICLE_ID null means that the person is PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, so it can be labelled as 0
     if split_line[people_columns.index('VEHICLE_ID')] == '':
         split_line[people_columns.index('VEHICLE_ID')] = '0'
@@ -112,9 +125,8 @@ for idx, line in enumerate(people_lines):
 
     # DAMAGE null values can be set to 0
     if split_line[people_columns.index('DAMAGE\n')] == '':
-        print(split_line)
-        input()
-        split_line[people_columns.index('DAMAGE\n')] = '0'
+
+        split_line[people_columns.index('DAMAGE\n')] = '0\n'
 
     if split_line[people_columns.index('INJURY_CLASSIFICATION')] == '':
         continue
@@ -130,6 +142,35 @@ geolocator = Nominatim(user_agent="marcodelpi@hotmail.com")
 
 for idx, line in enumerate(crashes_lines):
     split_line = line.split(',')
+    temp = ''
+    spare = 0
+    new_idx = 0
+    merge = False
+    drop_col = list()
+    for col_idx, item in enumerate(split_line):
+        if merge and '"' not in item:
+            temp += item
+            drop_col.append(col_idx)
+        if '"' in item:
+            if spare == 0:
+                temp += item.removeprefix('"')
+                spare = 1
+                merge = True
+                new_idx = col_idx
+
+            else:
+                temp += item.removesuffix('"')
+                spare = 0
+                merge = False
+                split_line[new_idx] = temp
+                drop_col.append(col_idx)
+                temp = ''
+    for c in reversed(drop_col):
+        split_line.pop(c)
+
+    # Check correctness of the previous for loop results
+    if len(split_line) != len(crashes_columns):
+        raise IndexError
 
     if split_line[crashes_columns.index('LATITUDE')] == '':
         addr = (f"{split_line[crashes_columns.index('STREET_NO')]} {split_line[crashes_columns.index('STREET_NAME')]}, "
@@ -138,7 +179,7 @@ for idx, line in enumerate(crashes_lines):
         if location:
             split_line[crashes_columns.index('LATITUDE')] = str(location.latitude)
             split_line[crashes_columns.index('LONGITUDE')] = str(location.longitude)
-            split_line[crashes_columns.index('LOCATION\n')] = f'POINT ({str(location.longitude)} {str(location.latitude)})'
+            split_line[crashes_columns.index('LOCATION\n')] = f'POINT ({str(location.longitude)} {str(location.latitude)})\n'
             print(f"Address {addr} retrieved successfully")
 
         else:
@@ -160,6 +201,36 @@ crashes.writelines(crashes_lines)
 # Switch to Vehicles dataset
 for idx, line in enumerate(vehicles_lines):
     split_line = line.split(',')
+    temp = ''
+    spare = 0
+    new_idx = 0
+    merge = False
+    drop_col = list()
+    for col_idx, item in enumerate(split_line):
+        if merge and '"' not in item:
+            temp += item
+            drop_col.append(col_idx)
+        if '"' in item:
+            if spare == 0:
+                temp += item.removeprefix('"')
+                spare = 1
+                merge = True
+                new_idx = col_idx
+
+            else:
+                temp += item.removesuffix('"')
+                spare = 0
+                merge = False
+                split_line[new_idx] = temp
+                drop_col.append(col_idx)
+                temp = ''
+    for c in reversed(drop_col):
+        split_line.pop(c)
+
+    # Check correctness of the previous for loop results
+    if len(split_line) != len(people_columns):
+        raise IndexError
+
     # where UNIT_TYPE is not PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, MODEL and FIRST_CONTACT_POINT can be labelled as UNKNOWN
     if split_line[vehicles_columns.index('UNIT_TYPE')] not in ['PEDESTRIAN', 'BICYCLE', 'NON-MOTOR VEHICLE']:
         split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'UNKNOWN'
@@ -187,14 +258,14 @@ for idx, line in enumerate(vehicles_lines):
             split_line[vehicles_columns.index('MANEUVER')] = 'NOT_A_VEHICLE'
         if split_line[vehicles_columns.index('OCCUPANT_CNT')] == '':
             split_line[vehicles_columns.index('OCCUPANT_CNT')] = 'NOT_A_VEHICLE'
-        if split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] == '':
-            split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] = 'NOT_A_VEHICLE'
+        if split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] == '':
+            split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'NOT_A_VEHICLE\n'
 
     if split_line[vehicles_columns.index('MODEL')] == '':
         split_line[vehicles_columns.index('MODEL')] = 'UNKNOWN'
 
-    if split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] == '':
-        split_line[vehicles_columns.index('FIRST_CONTACT_POINT')] = 'UNKNOWN'
+    if split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] == '':
+        split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'UNKNOWN\n'
 
     if split_line[vehicles_columns.index('LIC_PLATE_STATE')] == '':
         person_id_vehicle = split_line[vehicles_columns.index('CRASH_UNIT_ID')]
