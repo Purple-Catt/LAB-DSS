@@ -34,6 +34,7 @@ for idx, line in enumerate(people_lines):
     except KeyError:
         mode[split_line[people_columns.index('AGE')]] = 1
 
+mode.pop('')
 mx = 0
 max_k = 0
 for k, v in mode.items():
@@ -41,6 +42,8 @@ for k, v in mode.items():
         mx = v
         max_k = k
 
+people_col_to_drop = list()
+states = dict()
 for idx, line in enumerate(people_lines):
     split_line = line.split(',')
     temp = ''
@@ -49,23 +52,22 @@ for idx, line in enumerate(people_lines):
     merge = False
     drop_col = list()
     for col_idx, item in enumerate(split_line):
-        if merge and '"' not in item:
-            temp += item
+        if merge:
+            temp = temp + ',' + item
             drop_col.append(col_idx)
-        if '"' in item:
-            if spare == 0:
-                temp += item.removeprefix('"')
-                spare = 1
-                merge = True
-                new_idx = col_idx
-
-            else:
-                temp += item.removesuffix('"')
+            if '"' in item and '""' not in item:
                 spare = 0
                 merge = False
                 split_line[new_idx] = temp
-                drop_col.append(col_idx)
                 temp = ''
+                continue
+
+        if '"' in item and '""' not in item:
+            if spare == 0:
+                temp += item
+                spare = 1
+                merge = True
+                new_idx = col_idx
     for c in reversed(drop_col):
         split_line.pop(c)
 
@@ -94,6 +96,8 @@ for idx, line in enumerate(people_lines):
 
     if split_line[people_columns.index('STATE')] == '':
         split_line[people_columns.index('STATE')] = 'IL'
+
+    states[split_line[people_columns.index('PERSON_ID')]] = split_line[people_columns.index('STATE')]
 
     # SAFETY_EQUIPMENT null values can be labelled as USAGE UNKNOWN
     if split_line[people_columns.index('SAFETY_EQUIPMENT')] == '':
@@ -124,15 +128,17 @@ for idx, line in enumerate(people_lines):
         split_line[people_columns.index('BAC_RESULT')] = 'TEST NOT OFFERED'
 
     # DAMAGE null values can be set to 0
-    if split_line[people_columns.index('DAMAGE\n')] == '':
-
+    if split_line[people_columns.index('DAMAGE\n')] == '\n':
         split_line[people_columns.index('DAMAGE\n')] = '0\n'
 
     if split_line[people_columns.index('INJURY_CLASSIFICATION')] == '':
-        continue
+        people_col_to_drop.append(idx)
 
     else:
         people_lines[idx] = ','.join(split_line)
+
+for c in sorted(people_col_to_drop, reverse=True):
+    people_lines.pop(c)
 
 people.write(','.join(people_columns))
 people.writelines(people_lines)
@@ -140,6 +146,7 @@ people.writelines(people_lines)
 # Switch to Crashes dataset
 geolocator = Nominatim(user_agent="marcodelpi@hotmail.com")
 
+crashes_col_to_drop = list()
 for idx, line in enumerate(crashes_lines):
     split_line = line.split(',')
     temp = ''
@@ -148,23 +155,22 @@ for idx, line in enumerate(crashes_lines):
     merge = False
     drop_col = list()
     for col_idx, item in enumerate(split_line):
-        if merge and '"' not in item:
-            temp += item
+        if merge:
+            temp = temp + ',' + item
             drop_col.append(col_idx)
-        if '"' in item:
-            if spare == 0:
-                temp += item.removeprefix('"')
-                spare = 1
-                merge = True
-                new_idx = col_idx
-
-            else:
-                temp += item.removesuffix('"')
+            if '"' in item and '""' not in item:
                 spare = 0
                 merge = False
                 split_line[new_idx] = temp
-                drop_col.append(col_idx)
                 temp = ''
+                continue
+
+        if '"' in item and '""' not in item:
+            if spare == 0:
+                temp += item
+                spare = 1
+                merge = True
+                new_idx = col_idx
     for c in reversed(drop_col):
         split_line.pop(c)
 
@@ -175,7 +181,12 @@ for idx, line in enumerate(crashes_lines):
     if split_line[crashes_columns.index('LATITUDE')] == '':
         addr = (f"{split_line[crashes_columns.index('STREET_NO')]} {split_line[crashes_columns.index('STREET_NAME')]}, "
                 f"Chicago, IL, United States")
-        location = geolocator.geocode(addr)
+        try:
+            location = geolocator.geocode(addr)
+        except:
+            print("Error occurred")
+            location = None
+
         if location:
             split_line[crashes_columns.index('LATITUDE')] = str(location.latitude)
             split_line[crashes_columns.index('LONGITUDE')] = str(location.longitude)
@@ -184,21 +195,28 @@ for idx, line in enumerate(crashes_lines):
 
         else:
             print(f"Unable to retrieve location for address: {addr}")
-
+    
+    if split_line[crashes_columns.index('REPORT_TYPE')] == '':
+        split_line[crashes_columns.index('REPORT_TYPE')] = 'UNKNOWN'
+        
     if (split_line[crashes_columns.index('STREET_DIRECTION')] == '' or
             split_line[crashes_columns.index('STREET_NAME')] == '' or
             split_line[crashes_columns.index('BEAT_OF_OCCURRENCE')] == '' or
             split_line[crashes_columns.index('MOST_SEVERE_INJURY')] == '' or
             split_line[crashes_columns.index('LONGITUDE')] == ''):
-        continue
+        crashes_col_to_drop.append(idx)
 
     else:
         crashes_lines[idx] = ','.join(split_line)
+
+for c in sorted(crashes_col_to_drop, reverse=True):
+    crashes_lines.pop(c)
 
 crashes.write(','.join(crashes_columns))
 crashes.writelines(crashes_lines)
 
 # Switch to Vehicles dataset
+vehicles_col_to_drop = list()
 for idx, line in enumerate(vehicles_lines):
     split_line = line.split(',')
     temp = ''
@@ -207,33 +225,35 @@ for idx, line in enumerate(vehicles_lines):
     merge = False
     drop_col = list()
     for col_idx, item in enumerate(split_line):
-        if merge and '"' not in item:
-            temp += item
+        if merge:
+            temp = temp + ',' + item
             drop_col.append(col_idx)
-        if '"' in item:
+            if '"' in item and '""' not in item:
+                spare = 0
+                merge = False
+                split_line[new_idx] = temp
+                temp = ''
+                continue
+
+        if '"' in item and '""' not in item:
             if spare == 0:
-                temp += item.removeprefix('"')
+                temp += item
                 spare = 1
                 merge = True
                 new_idx = col_idx
 
-            else:
-                temp += item.removesuffix('"')
-                spare = 0
-                merge = False
-                split_line[new_idx] = temp
-                drop_col.append(col_idx)
-                temp = ''
     for c in reversed(drop_col):
         split_line.pop(c)
 
     # Check correctness of the previous for loop results
-    if len(split_line) != len(people_columns):
-        raise IndexError
+    if len(split_line) != len(vehicles_columns):
+        # raise IndexError
+        print(f'Error occurred. Line of length {len(split_line)} instead of {len(vehicles_columns)}')
+        vehicles_col_to_drop.append(idx)
 
     # where UNIT_TYPE is not PEDESTRIAN, BICYCLE or NON-MOTOR VEHICLE, MODEL and FIRST_CONTACT_POINT can be labelled as UNKNOWN
-    if split_line[vehicles_columns.index('UNIT_TYPE')] not in ['PEDESTRIAN', 'BICYCLE', 'NON-MOTOR VEHICLE']:
-        split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'UNKNOWN'
+    if split_line[vehicles_columns.index('UNIT_TYPE')] not in ['PEDESTRIAN', 'BICYCLE', 'NON-MOTOR VEHICLE'] and split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] == '\n':
+        split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'UNKNOWN\n'
 
     if split_line[vehicles_columns.index('UNIT_TYPE')] in ['PEDESTRIAN', 'BICYCLE', 'NON-MOTOR VEHICLE']:
         if split_line[vehicles_columns.index('VEHICLE_ID')] == '':
@@ -258,29 +278,44 @@ for idx, line in enumerate(vehicles_lines):
             split_line[vehicles_columns.index('MANEUVER')] = 'NOT_A_VEHICLE'
         if split_line[vehicles_columns.index('OCCUPANT_CNT')] == '':
             split_line[vehicles_columns.index('OCCUPANT_CNT')] = 'NOT_A_VEHICLE'
-        if split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] == '':
+        if split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] == '\n':
             split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'NOT_A_VEHICLE\n'
 
     if split_line[vehicles_columns.index('MODEL')] == '':
         split_line[vehicles_columns.index('MODEL')] = 'UNKNOWN'
 
-    if split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] == '':
+    if split_line[vehicles_columns.index('UNIT_TYPE')] == '':
+        vehicles_col_to_drop.append(idx)
+
+    # This if statement exists because 48 records contains no information at all regarding the vehicles so,
+    # instead of substitute all the null values it's better to remove them
+    if split_line[vehicles_columns.index('VEHICLE_ID')] == '':
+        vehicles_col_to_drop.append(idx)
+
+    if split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] == '\n':
         split_line[vehicles_columns.index('FIRST_CONTACT_POINT\n')] = 'UNKNOWN\n'
 
     if split_line[vehicles_columns.index('LIC_PLATE_STATE')] == '':
-        person_id_vehicle = split_line[vehicles_columns.index('CRASH_UNIT_ID')]
-        for p_line in people_lines:
-            p_split = p_line.split(',')
-            if p_split[people_columns.index('PERSON_ID')] == person_id_vehicle:
-                split_line[vehicles_columns.index('LIC_PLATE_STATE')] = p_split[people_columns.index('STATE')]
+        try:
+            split_line[vehicles_columns.index('LIC_PLATE_STATE')] = states[split_line[vehicles_columns.index('CRASH_UNIT_ID')]]
+        except KeyError:
+            split_line[vehicles_columns.index('LIC_PLATE_STATE')] = 'UNKNOWN'
 
     if split_line[vehicles_columns.index('VEHICLE_YEAR')] == '':
         split_line[vehicles_columns.index('VEHICLE_YEAR')] = '2015'
 
-    if int(split_line[vehicles_columns.index('VEHICLE_YEAR')]) < 2019:
-        continue
+    try:
+        yr = float(split_line[vehicles_columns.index('VEHICLE_YEAR')])
+    except ValueError:
+        yr = 0
+
+    if yr > 2019.0:
+        vehicles_col_to_drop.append(idx)
     else:
         vehicles_lines[idx] = ','.join(split_line)
+
+for c in sorted(vehicles_col_to_drop, reverse=True):
+    vehicles_lines.pop(c)
 
 vehicles.write(','.join(vehicles_columns))
 vehicles.writelines(vehicles_lines)
