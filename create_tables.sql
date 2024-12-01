@@ -16,10 +16,10 @@ CREATE TABLE Vehicle_Dim (
                              Model VARCHAR(50), -- Vehicle model (e.g., "Corolla")
                              Year INT, -- Year of manufacture
                              Vehicle_Type VARCHAR(50), -- Type of vehicle (e.g., "SUV", "Truck")
-                             Color VARCHAR(20), -- Color of the vehicle (e.g., "Red")
-                             Fuel_Type VARCHAR(20), -- Type of fuel (e.g., "Gasoline", "Electric")
-                             Passenger_Capacity INT, -- Number of passengers the vehicle can hold
-                             Is_Commercial BIT -- Indicates if the vehicle is commercial (1 for yes, 0 for no)
+                             -- Color VARCHAR(20), -- Color of the vehicle (e.g., "Red")
+                             -- Fuel_Type VARCHAR(20), -- Type of fuel (e.g., "Gasoline", "Electric")
+                             -- Passenger_Capacity INT, -- Number of passengers the vehicle can hold
+                             -- Is_Commercial BIT -- Indicates if the vehicle is commercial (1 for yes, 0 for no)
 );
 CREATE TABLE Geography_Dim (
                                Location_ID INT PRIMARY KEY, -- Unique identifier for the location
@@ -38,7 +38,7 @@ CREATE TABLE Crash_Dim (
                            Light_Conditions VARCHAR(50), -- Lighting conditions during the crash (e.g., "Daylight")
                            Road_Conditions VARCHAR(50), -- Road surface conditions (e.g., "Dry", "Wet")
                            Traffic_Control VARCHAR(50), -- Traffic control present (e.g., "Stop Sign", "Traffic Signal")
-                           Is_Hit_And_Run BIT -- Indicates if the crash was a hit-and-run (1 for yes, 0 for no)
+                           -- Is_Hit_And_Run BIT -- Indicates if the crash was a hit-and-run (1 for yes, 0 for no)
 );
 CREATE TABLE Person_Dim (
                             Person_ID INT PRIMARY KEY, -- Unique identifier for the person
@@ -47,7 +47,7 @@ CREATE TABLE Person_Dim (
                             Role VARCHAR(50), -- Role in the accident (e.g., "Driver", "Passenger", "Pedestrian")
                             Injury_Level VARCHAR(50), -- Level of injury (e.g., "None", "Severe")
                             Is_Impaired BIT, -- Indicates if the person was impaired by drugs/alcohol (1 for yes, 0 for no)
-                            License_Status VARCHAR(50), -- Driver's license status (e.g., "Valid", "Suspended")
+                            -- License_Status VARCHAR(50), -- Driver's license status (e.g., "Valid", "Suspended")
                             Is_Resident BIT -- Indicates if the person is a local resident (1 for yes, 0 for no)
 );
 CREATE TABLE Weather_Dim (
@@ -70,12 +70,12 @@ CREATE TABLE Road_Dim (
                           Road_Name VARCHAR(255), -- Name of the road
                           Road_Type VARCHAR(50), -- Type of road (e.g., "Highway", "Urban")
                           Speed_Limit INT, -- Speed limit on the road (in km/h)
-                          Lane_Count INT, -- Number of lanes on the road
-                          Is_Toll_Road BIT -- Indicates if the road is a toll road (1 for yes, 0 for no)
+                          -- Lane_Count INT, -- Number of lanes on the road
+                          -- Is_Toll_Road BIT -- Indicates if the road is a toll road (1 for yes, 0 for no)
 );
 CREATE TABLE Driver_Behavior_Dim (
                                      Behavior_ID INT PRIMARY KEY, -- Unique identifier for the driver behavior
-                                     Is_Speeding BIT, -- Indicates if the driver was speeding (1 for yes, 0 for no)
+                                     -- Is_Speeding BIT, -- Indicates if the driver was speeding (1 for yes, 0 for no)
                                      Is_Distracted BIT, -- Indicates if the driver was distracted (1 for yes, 0 for no)
                                      Is_Fatigue BIT -- Indicates if the driver was fatigued (1 for yes, 0 for no)
 );
