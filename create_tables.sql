@@ -1,3 +1,15 @@
+/*
+DROP TABLE Damage_Fact;
+DROP TABLE Date_Dim;
+DROP TABLE Vehicle_Dim;
+DROP TABLE Geography_Dim;
+DROP TABLE Crash_Dim;
+DROP TABLE Person_Dim;
+DROP TABLE Weather_Dim;
+DROP TABLE Cause_Dim;
+DROP TABLE Road_Dim;
+DROP TABLE Driver_Behavior_Dim;
+*/
 CREATE TABLE Date_Dim (
                           Date_ID INT PRIMARY KEY, -- Unique identifier for the date
                           Full_Date DATE, -- Full date (e.g., "2024-11-26")
@@ -24,6 +36,7 @@ CREATE TABLE Vehicle_Dim (
 CREATE TABLE Geography_Dim (
                                Location_ID INT PRIMARY KEY, -- Unique identifier for the location
                                Street VARCHAR(255), -- Street name
+                               Street_no VARCHAR(10), -- Street number
                                City VARCHAR(255), -- City name
                                State VARCHAR(50), -- State name
                                Zip_Code VARCHAR(10), -- Postal code
