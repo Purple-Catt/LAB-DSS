@@ -1,14 +1,13 @@
 import csv
-import os
 from datetime import datetime
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
 
 # TODO crash dim
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-RAW_PATH = f'{ROOT_DIR}/Data/'
-DIM_PATH = f'{ROOT_DIR}/Data/DW/'
+
+RAW_PATH = '/Data/'
+DIM_PATH = '/DW/'
 
 # Extract and process data for Date_Dim
 with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
@@ -16,7 +15,7 @@ with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
     date_dim = []
     unique_dates = set()
     for row in reader:
-        crash_datetime = datetime.strptime(row['CRASH_DATE'], '%m/%d/%Y %I:%M:%S %p')
+        crash_datetime = datetime.strptime(row['CRASH_DATE'], '%d/%m/%Y %I:%M:%S %p')
         crash_date = datetime.strftime(crash_datetime, '%Y-%m-%d')
         crash_hour = int(datetime.strftime(crash_datetime, '%H'))
         if crash_date not in unique_dates:
@@ -41,7 +40,7 @@ with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
             ])
 
 # Save to Date_Dim.csv
-with open(f'{DIM_PATH}Date_Dim.csv', 'w', newline='') as output_file:
+with open(f'{DIM_PATH}Date_Dim.csv', 'x', newline='') as output_file:
     writer = csv.writer(output_file)
     writer.writerow(['Date_ID', 'Full_Date', 'Year', 'Quarter', 'Month', 'Day', 'Weekday', 'Is_Weekend', 'Hour', 'Time_Of_Day'])
     for idx, row in enumerate(date_dim, start=1):
@@ -60,7 +59,7 @@ with open(f'{RAW_PATH}Vehicles.csv', 'r') as vehicles_file:
             vehicle_dim.append(vehicle)
 
 # Save to Vehicle_Dim.csv
-with open(f'{DIM_PATH}Vehicle_Dim.csv', 'w', newline='') as output_file:
+with open(f'{DIM_PATH}Vehicle_Dim.csv', 'x', newline='') as output_file:
     writer = csv.writer(output_file)
     writer.writerow(['Vehicle_ID', 'Make', 'Model', 'Year', 'Vehicle_Type'])
     for idx, row in enumerate(vehicle_dim, start=1):
@@ -73,15 +72,15 @@ with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
     unique_locations = set()
 
     for row in reader:
-        location = (row['STREET_NAME'], row['STREET_NO'], row.get('LATITUDE', None), row.get('LONGITUDE', None))
+        location = (row['STREET_NAME'], row['STREET_NO'], row['CITY'], row['STATE'], row.get('LATITUDE', None), row.get('LONGITUDE', None))
         if location not in unique_locations:
             unique_locations.add(location)
             geography_dim.append(location)
 
 # Save to Geography_Dim.csv
-with open(f'{DIM_PATH}Geography_Dim.csv', 'w', newline='') as output_file:
+with open(f'{DIM_PATH}Geography_Dim.csv', 'x', newline='') as output_file:
     writer = csv.writer(output_file)
-    writer.writerow(['Location_ID', 'Street', 'Street_no', 'Latitude', 'Longitude'])
+    writer.writerow(['Location_ID', 'Street', 'Street_no', 'City', 'State', 'Latitude', 'Longitude'])
     for idx, row in enumerate(geography_dim, start=1):
         writer.writerow([idx] + list(row))
 
@@ -98,7 +97,7 @@ with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
             crash_dim.append(crash)
 
 # Save to Crash_Dim.csv
-with open(f'{DIM_PATH}Crash_Dim.csv', 'w', newline='') as output_file:
+with open(f'{DIM_PATH}Crash_Dim.csv', 'x', newline='') as output_file:
     writer = csv.writer(output_file)
     writer.writerow(['Crash_ID', 'Crash_Type', 'Severity_Level', 'Light_Conditions', 'Road_Conditions', 'Traffic_Control'])
     for idx, row in enumerate(crash_dim, start=1):
@@ -119,34 +118,13 @@ with open(f'{RAW_PATH}People.csv', 'r') as people_file:
             person_dim.append(person)
 
 # Save to Person_Dim.csv
-with open(f'{DIM_PATH}Person_Dim.csv', 'w', newline='') as output_file:
+with open(f'{DIM_PATH}Person_Dim.csv', 'x', newline='') as output_file:
     writer = csv.writer(output_file)
     writer.writerow(['Person_ID', 'Age', 'Gender', 'Role', 'Injury_Level', 'Is_Impaired', 'Is_Resident'])
     for idx, row in enumerate(person_dim, start=1):
         writer.writerow([idx] + list(row))
 
-# Extract and process data for Driver_Behavior_Dim
-with open(f'{RAW_PATH}People.csv', 'r', newline='') as people_file:
-    reader = csv.DictReader(people_file)
-    behavior_dim = []
-    unique_behavior = set()
-
-    for row in reader:
-        behavior = (row['DRIVER_ACTION'])
-
-        if behavior not in unique_behavior:
-            unique_behavior.add(behavior)
-            behavior_dim.append(behavior)
-
-# Save to Driver_Behavior_Dim.csv
-with open(f'{DIM_PATH}Driver_Behavior_Dim.csv', 'w', newline='') as output_file:
-    writer = csv.writer(output_file)
-    writer.writerow(['Behavior_ID', 'Driver_Action'])
-    for idx, row in enumerate(behavior_dim, start=1):
-        writer.writerow([idx] + list(row))
-
-'''
-    Extract and process data for Weather_Dim
+# Extract and process data for Weather_Dim
 with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
     reader = csv.DictReader(crashes_file)
     weather_dim = []
@@ -156,7 +134,7 @@ with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
     retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
     openmeteo = openmeteo_requests.Client(session = retry_session)
     for row in reader:
-        crash_datetime = datetime.strptime(row['CRASH_DATE'], '%m/%d/%Y %I:%M:%S %p')
+        crash_datetime = datetime.strptime(row['CRASH_DATE'], '%d/%m/%Y %I:%M:%S %p')
         crash_date = datetime.strftime(crash_datetime, '%Y-%m-%d')
         crash_hour = int(datetime.strftime(crash_datetime, '%H'))
         url = "https://archive-api.open-meteo.com/v1/archive"
@@ -196,16 +174,17 @@ with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
         if weather not in unique_weather:
             unique_weather.add(weather)
             weather_dim.append(weather)
+        else:
+            print("NOT UNIQUE")
 
-    # Save to Weather_Dim.csv
-with open(f'{DIM_PATH}Weather_Dim.csv', 'w', newline='') as output_file:
+# Save to Weather_Dim.csv
+with open(f'{DIM_PATH}Weather_Dim.csv', 'x', newline='') as output_file:
     writer = csv.writer(output_file)
     writer.writerow(['Weather_ID', 'Condition', 'Temperature', 'Cloud_Cover', 'Wind_Speed', 'Precipitation', 'Humidity'])
     for idx, row in enumerate(weather_dim, start=1):
-        writer.writerow([idx] + list(row))ù
-'''
-'''
-Combine all dimensions into the Fact Table
+        writer.writerow([idx] + list(row))
+
+# TODO Combine all dimensions into the Fact Table
 with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
     reader = csv.DictReader(crashes_file)
     fact_table = []
@@ -226,9 +205,8 @@ with open(f'{RAW_PATH}Crashes.csv', 'r') as crashes_file:
         ])
 
 # Save to Damage_Fact.csv
-with open(f'{DIM_PATH}Damage_Fact.csv', 'w', newline='') as output_file:
+with open(f'{DIM_PATH}Damage_Fact.csv', 'x', newline='') as output_file:
     writer = csv.writer(output_file)
     writer.writerow(['Damage_ID', 'Date_ID', 'Location_ID', 'Vehicle_ID', 'Person_ID', 'Weather_ID', 'Cause_ID', 'Road_ID', 'Driver_Behavior_ID', 'Damage_Cost', 'Num_Units'])
     for idx, row in enumerate(fact_table, start=1):
         writer.writerow([idx] + row)
-'''
