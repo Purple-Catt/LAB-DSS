@@ -67,7 +67,7 @@ CREATE TABLE Weather_Dim (
                              Weather_ID INT PRIMARY KEY, -- Unique identifier for the weather condition
                              Condition VARCHAR(50), -- Weather condition (e.g., "Clear", "Rain", "Snow")
                              Temperature DECIMAL(5,2), -- Temperature in degrees Celsius
-                             Visibility INT, -- Visibility in meters
+                             Cloud_Cover INT, -- Cloud covering in percentage
                              Wind_Speed DECIMAL(5,2), -- Wind speed in km/h
                              Precipitation DECIMAL(5,2), -- Precipitation amount in mm
                              Humidity INT -- Humidity percentage
