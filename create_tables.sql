@@ -37,10 +37,11 @@ CREATE TABLE Geography_Dim (
                                Location_ID INT PRIMARY KEY, -- Unique identifier for the location
                                Street VARCHAR(255), -- Street name
                                Street_no VARCHAR(10), -- Street number
-                               City VARCHAR(255), -- City name
-                               State VARCHAR(50), -- State name
-                               Zip_Code VARCHAR(10), -- Postal code
-                               Region VARCHAR(50), -- Region within the city/state (e.g., "North", "South")
+                               Speed_Limit INT, -- Speed limit on the road (in km/h)
+                               -- City VARCHAR(255), -- City name
+                               -- State VARCHAR(50), -- State name
+                               -- Zip_Code VARCHAR(10), -- Postal code
+                               -- Region VARCHAR(50), -- Region within the city/state (e.g., "North", "South")
                                Latitude DECIMAL(9,6), -- Latitude coordinate
                                Longitude DECIMAL(9,6) -- Longitude coordinate
 );
@@ -63,6 +64,7 @@ CREATE TABLE Person_Dim (
                             -- License_Status VARCHAR(50), -- Driver's license status (e.g., "Valid", "Suspended")
                             Is_Resident BIT -- Indicates if the person is a local resident (1 for yes, 0 for no)
 );
+/*
 CREATE TABLE Weather_Dim (
                              Weather_ID INT PRIMARY KEY, -- Unique identifier for the weather condition
                              Condition VARCHAR(50), -- Weather condition (e.g., "Clear", "Rain", "Snow")
@@ -72,25 +74,19 @@ CREATE TABLE Weather_Dim (
                              Precipitation DECIMAL(5,2), -- Precipitation amount in mm
                              Humidity INT -- Humidity percentage
 );
-CREATE TABLE Cause_Dim (
-                           Cause_ID INT PRIMARY KEY, -- Unique identifier for the cause
-                           Cause_Type VARCHAR(255), -- Type of cause (e.g., "Speeding", "Distracted Driving")
-                           Is_Alcohol_Related BIT, -- Indicates if alcohol was involved (1 for yes, 0 for no)
-                           Is_Drug_Related BIT -- Indicates if drugs were involved (1 for yes, 0 for no)
-);
+*/
+
 CREATE TABLE Road_Dim (
                           Road_ID INT PRIMARY KEY, -- Unique identifier for the road
                           Road_Name VARCHAR(255), -- Name of the road
-                          Road_Type VARCHAR(50), -- Type of road (e.g., "Highway", "Urban")
-                          Speed_Limit INT, -- Speed limit on the road (in km/h)
+                          -- Road_Type VARCHAR(50), -- Type of road (e.g., "Highway", "Urban")
+
                           -- Lane_Count INT, -- Number of lanes on the road
                           -- Is_Toll_Road BIT -- Indicates if the road is a toll road (1 for yes, 0 for no)
 );
 CREATE TABLE Driver_Behavior_Dim (
                                      Behavior_ID INT PRIMARY KEY, -- Unique identifier for the driver behavior
-                                     -- Is_Speeding BIT, -- Indicates if the driver was speeding (1 for yes, 0 for no)
-                                     Is_Distracted BIT, -- Indicates if the driver was distracted (1 for yes, 0 for no)
-                                     Is_Fatigue BIT -- Indicates if the driver was fatigued (1 for yes, 0 for no)
+                                     Driver_Action BIT, -- Behavior of the driver
 );
 CREATE TABLE Damage_Fact (
                              Damage_ID INT PRIMARY KEY, -- Unique identifier for the fact table
