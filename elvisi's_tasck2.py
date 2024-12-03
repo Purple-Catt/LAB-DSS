@@ -2,7 +2,8 @@ import pandas as pd
 
 # Load the data from the provided files
 crashes_path = '/Users/elvislleshi/Desktop/dss app/LDS24 - Data (1)/Crashes.csv'
-vehicles_path = '/Users/elvislleshi/Desktop/dss app/LDS24 - Data (1)/Vehicles.csv'
+vehicles_path = '/Users/elvislleshi/Des
+ktop/dss app/LDS24 - Data (1)/Vehicles.csv'
 people_path = '/Users/elvislleshi/Desktop/dss app/LDS24 - Data (1)/People.csv'
 
 crashes = pd.read_csv(crashes_path)
@@ -25,3 +26,4 @@ vehicles_head = vehicles.head()
 people_head = people.head()
 
 crashes_info, crashes_missing, crashes_head, vehicles_info, vehicles_missing, vehicles_head, people_info, people_missing, people_head
+##jgjhgu
