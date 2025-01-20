@@ -7,7 +7,7 @@ columns_to_drop = ['winner_seed', 'winner_entry', 'winner_ht', 'loser_seed', 'lo
                    'winner_rank', 'winner_rank_points', 'loser_rank', 'loser_rank_points']
 '''
 winner_age, winner_hand, loser_age, loser_hand will be substituted with the median
-Drop winner and loser ioc (?), score
+Drop winner and loser ioc, score
 '''
 fact_dict_stats = {'winner_age': [], 'winner_hand': {'A': 0, 'U': 0, 'L': 0, 'R': 0},
                    'loser_age': [], 'loser_hand': {'A': 0, 'U': 0, 'L': 0, 'R': 0}}
@@ -63,6 +63,11 @@ with open('Data\\fact.csv', newline='') as r_file:
                 if row[col_idx_fact[k]] == '':
                     row[col_idx_fact[k]] = fact_dict_stats[k]
 
+            if (row[col_idx_fact['loser_ioc']] == '' or
+                    row[col_idx_fact['score']] == '' or
+                    row[col_idx_fact['winner_ioc']] == ''):
+                continue
+
             for idx in reversed(col_idx_to_drop):
                 row.pop(idx)
 
@@ -73,6 +78,7 @@ with open('Data\\tourney.csv', newline='') as r_file:
         reader = csv.reader(r_file)
         writer = csv.writer(w_file)
         var = True
+        unique_set = set()
         for row in reader:
             if var:
                 var = False
@@ -85,6 +91,12 @@ with open('Data\\tourney.csv', newline='') as r_file:
                 row.append('month')
                 row.append('year')
                 writer.writerow(row)
+                continue
+
+            if tuple(row) not in unique_set:
+                unique_set.add(tuple(row))
+
+            else:
                 continue
 
             if row[col_idx_tourney['surface']] == '':
