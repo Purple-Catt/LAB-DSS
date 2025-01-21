@@ -90,6 +90,7 @@ with open('Data\\tourney.csv', newline='') as r_file:
                 row.append('day')
                 row.append('month')
                 row.append('year')
+                row.append('quarter')
                 writer.writerow(row)
                 continue
 
@@ -105,11 +106,21 @@ with open('Data\\tourney.csv', newline='') as r_file:
             if row[col_idx_tourney['draw_size']] == '':
                 row[col_idx_tourney['draw_size']] = 32
 
+            else:
+                row[col_idx_tourney['draw_size']] = row[col_idx_tourney['draw_size']].removesuffix('.0')
+
             dt = datetime(1970, 1, 1) + timedelta(
                 seconds=int(row.pop(col_idx_tourney['tourney_timestamp'])))
             row.append(str(dt.day))
             row.append(str(dt.month))
             row.append(str(dt.year))
+            if dt.month <= 4:
+                quarter = '1'
+            elif dt.month <= 8:
+                quarter = '2'
+            else:
+                quarter = '3'
+            row.append(quarter)
 
             writer.writerow(row)
 
