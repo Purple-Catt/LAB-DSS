@@ -39,14 +39,13 @@ CREATE TABLE Player (
     player_name NVARCHAR(100),
     player_hand NVARCHAR(10),
     country_code NVARCHAR(10), -- Foreign Key to Geography table
-    loc_country NVARCHAR(10), -- Additional column to track location country
     FOREIGN KEY (country_code) REFERENCES Geography(country_code)
 );
 
 -- Create the Match table (Fact Table)
 CREATE TABLE Match (
     match_id INT PRIMARY KEY, -- Primary Key
-    tourney_id INT,           -- Foreign Key to Tournament table
+    tourney_id NVARCHAR(20),           -- Foreign Key to Tournament table
     financial_id INT,         -- Foreign Key to Financial table
     winner_id INT,            -- Foreign Key to Player table
     loser_id INT,             -- Foreign Key to Player table

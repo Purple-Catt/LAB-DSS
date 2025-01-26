@@ -46,7 +46,7 @@ with open(fact_path, newline='') as fact_file:
             match_writer.writerow(['match_id', 'tourney_id', 'winner_id', 'loser_id', 'financial_id', 'score', 'round',
                                    'best_of', 'spectator', 'winner_age', 'loser_age'])
             financial_writer.writerow(['financial_id', 'match_expenses', 'revenue', 'profit'])
-            player_writer.writerow(['player_id', 'player_name', 'player_hand', 'loc_country'])
+            player_writer.writerow(['player_id', 'player_name', 'player_hand', 'country_code'])
             continue
 
         match_row.append(str(match_id))

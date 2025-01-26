@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime, timedelta
+from ioc_countries import ioc_countries
 
 columns_to_drop = ['winner_seed', 'winner_entry', 'winner_ht', 'loser_seed', 'loser_entry', 'loser_ht', 'minutes',
                    'w_ace', 'w_df', 'w_svpt', 'w_1stIn', 'w_1stWon', 'w_2ndWon', 'w_SvGms', 'w_bpSaved', 'w_bpFaced',
@@ -11,6 +12,8 @@ Drop winner and loser ioc, score
 '''
 fact_dict_stats = {'winner_age': [], 'winner_hand': {'A': 0, 'U': 0, 'L': 0, 'R': 0},
                    'loser_age': [], 'loser_hand': {'A': 0, 'U': 0, 'L': 0, 'R': 0}}
+ioc_set = set()
+
 with open('Data\\fact.csv', newline='') as file:
     reader = csv.reader(file)
     var = True
@@ -68,6 +71,8 @@ with open('Data\\fact.csv', newline='') as r_file:
                     row[col_idx_fact['winner_ioc']] == ''):
                 continue
 
+            ioc_set.add(row[col_idx_fact['winner_ioc']])
+            ioc_set.add(row[col_idx_fact['loser_ioc']])
             for idx in reversed(col_idx_to_drop):
                 row.pop(idx)
 
@@ -124,4 +129,31 @@ with open('Data\\tourney.csv', newline='') as r_file:
 
             writer.writerow(row)
 
+with (open('Data\\countries.csv', newline='') as r_file,
+      open('Data\\countries_cleaned.csv', newline='', mode='w') as w_file,
+      open('alpha3countries.csv', newline='') as alpha3_file):
+    reader = csv.reader(r_file)
+    writer = csv.writer(w_file)
+    alpha3_reader = csv.reader(alpha3_file)
+    alpha3_countries = dict()
+    var = True
+    for row in reader:
+        if var:
+            var = False
+            writer.writerow(row)
 
+        if row[0] in ioc_set:
+            ioc_set.remove(row[0])
+
+        writer.writerow(row)
+
+    for row in alpha3_reader:
+        alpha3_countries[row[1]] = {'name': row[0], 'continent': row[2]}
+
+    for c in ioc_set:
+        try:
+            code = ioc_countries[c]['alpha_3']
+        except KeyError:
+            code = c
+        new_row = [c, alpha3_countries[code]['name'], alpha3_countries[code]['continent']]
+        writer.writerow(new_row)
