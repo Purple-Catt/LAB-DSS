@@ -14,11 +14,67 @@ params = ('DRIVER={ODBC Driver 17 for SQL Server};'
           'PWD=FRU5YM7A')
 
 with pyodbc.connect(params) as conn:
+    with open(date_path, newline='') as date_file:
+        cursor = conn.cursor()
+        reader = csv.reader(date_file)
+        var = True
+        for row in reader:
+            if var:
+                var = False
+                continue
+            date_id = int(row[0])
+            day = int(row[1])
+            month = int(row[2])
+            year = int(row[3])
+            quarter = int(row[4])
+
+            cursor.execute('INSERT INTO Date_SSIS_python VALUES (?, ?, ?, ?, ?)',
+                           date_id, day, month, quarter, year)
+
+        cursor.commit()
+        cursor.close()
+
+    with open(financial_path, newline='') as financial_file:
+        cursor = conn.cursor()
+        reader = csv.reader(financial_file)
+        var = True
+        for row in reader:
+            if var:
+                var = False
+                continue
+            financial_id = int(row[0])
+            match_expenses = float(row[1])
+            revenue = float(row[2])
+            profit = float(row[3])
+
+            cursor.execute('INSERT INTO Financial_SSIS_python VALUES (?, ?, ?, ?)',
+                           financial_id, match_expenses, revenue, profit)
+
+        cursor.commit()
+        cursor.close()
+
+    with open(geography_path, newline='') as geography_file:
+        cursor = conn.cursor()
+        reader = csv.reader(geography_file)
+        var = True
+        for row in reader:
+            if var:
+                var = False
+                continue
+            country_code = row[0]
+            country_name = row[1]
+            continent = row[2]
+
+            cursor.execute('INSERT INTO Geography_SSIS_python VALUES (?, ?, ?)',
+                           country_code, country_name, continent)
+
+        cursor.commit()
+        cursor.close()
+
     with open(player_path, newline='') as player_file:
         cursor = conn.cursor()
         reader = csv.reader(player_file)
         var = True
-        i = 0
         for row in reader:
             if var:
                 var = False
@@ -28,9 +84,7 @@ with pyodbc.connect(params) as conn:
             player_hand = row[2]
             country_code = row[3]
             cursor.execute('INSERT INTO Player_SSIS_python VALUES (?, ?, ?, ?)',
-                       player_id, player_name, player_hand, country_code)
-            i += 1
-            print(f'{i} done')
+                           player_id, player_name, player_hand, country_code)
 
         cursor.commit()
         cursor.close()
@@ -56,8 +110,8 @@ with pyodbc.connect(params) as conn:
         cursor.commit()
         cursor.close()
 
-        with open(match_path, newline='') as match_file:
-            cursor = conn.cursor()
+    with open(match_path, newline='') as match_file:
+        cursor = conn.cursor()
         reader = csv.reader(match_file)
         var = True
         for row in reader:
