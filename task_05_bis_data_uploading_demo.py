@@ -5,7 +5,6 @@ match_path ='Data\\DW\\match_ssis.csv'
 player_path ='Data\\DW\\player_ssis.csv'
 tournament_path ='Data\\DW\\tournament_ssis.csv'
 date_path = 'Data\\DW\\date_ssis.csv'
-financial_path = 'Data\\DW\\financial_ssis.csv'
 geography_path = 'Data\\DW\\geography_ssis.csv'
 params = ('DRIVER={ODBC Driver 17 for SQL Server};'
           'SERVER=tcp:lds.di.unipi.it;'
@@ -30,25 +29,6 @@ with pyodbc.connect(params) as conn:
 
             cursor.execute('INSERT INTO Date_SSIS_python VALUES (?, ?, ?, ?, ?)',
                            date_id, day, month, quarter, year)
-
-        cursor.commit()
-        cursor.close()
-
-    with open(financial_path, newline='') as financial_file:
-        cursor = conn.cursor()
-        reader = csv.reader(financial_file)
-        var = True
-        for row in reader:
-            if var:
-                var = False
-                continue
-            financial_id = int(row[0])
-            match_expenses = float(row[1])
-            revenue = float(row[2])
-            profit = float(row[3])
-
-            cursor.execute('INSERT INTO Financial_SSIS_python VALUES (?, ?, ?, ?)',
-                           financial_id, match_expenses, revenue, profit)
 
         cursor.commit()
         cursor.close()
@@ -82,9 +62,10 @@ with pyodbc.connect(params) as conn:
             player_id = int(row[0])
             player_name = row[1]
             player_hand = row[2]
-            country_code = row[3]
-            cursor.execute('INSERT INTO Player_SSIS_python VALUES (?, ?, ?, ?)',
-                           player_id, player_name, player_hand, country_code)
+            player_age = float(row[3])
+            country_code = row[4]
+            cursor.execute('INSERT INTO Player_SSIS_python VALUES (?, ?, ?, ?, ?)',
+                           player_id, player_name, player_hand, player_age, country_code)
 
         cursor.commit()
         cursor.close()
@@ -127,12 +108,13 @@ with pyodbc.connect(params) as conn:
             roundd = row[6]
             best_of = int(row[7])
             spectator = int(row[8])
-            winner_age = float(row[9])
-            loser_age = float(row[10])
+            match_expenses = float(row[9])
+            revenue = float(row[10])
+            profit = float(row[11])
 
-            cursor.execute('INSERT INTO Match_SSIS_python VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            cursor.execute('INSERT INTO Match_SSIS_python VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                            match_id, tournament_id, financial_id, winner_id, loser_id, best_of,
-                           spectator, score, roundd, winner_age, loser_age)
+                           spectator, score, roundd, match_expenses, revenue, profit)
 
         cursor.commit()
         cursor.close()

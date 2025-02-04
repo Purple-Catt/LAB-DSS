@@ -4,21 +4,17 @@ from math import floor
 match_path = 'Data\\DW\\match.csv'
 player_path = 'Data\\DW\\player.csv'
 tournament_path = 'Data\\DW\\tournament.csv'
-financial_path = 'Data\\DW\\financial.csv'
 date_path = 'Data\\DW\\date.csv'
 geography_path = 'Data\\DW\\geography.csv'
 
 match_ssis_path = 'Data\\DW\\match_ssis.csv'
 player_ssis_path = 'Data\\DW\\player_ssis.csv'
 tournament_ssis_path = 'Data\\DW\\tournament_ssis.csv'
-financial_ssis_path = 'Data\\DW\\financial_ssis.csv'
 date_ssis_path = 'Data\\DW\\date_ssis.csv'
 geography_ssis_path = 'Data\\DW\\geography_ssis.csv'
 
 with open(match_path, newline='') as file:
     match_len = len(file.readlines())
-with open(financial_path, newline='') as file:
-    financial_len = len(file.readlines())
 
 with open(match_path, newline='') as match_file:
     tourney_ids = set()
@@ -44,23 +40,6 @@ with open(match_path, newline='') as match_file:
             break
 
     match_ssis_file.close()
-
-with open(financial_path, newline='') as financial_file:
-    financial_ssis_file = open(financial_ssis_path, 'w', newline='')
-    financial_ssis_writer = csv.writer(financial_ssis_file)
-    reader = csv.reader(financial_file)
-
-    limit = floor(financial_len * 0.2)
-    row_number = 0
-    for row in reader:
-        if row_number < limit:
-            row_number += 1
-            financial_ssis_writer.writerow(row)
-
-        else:
-            break
-
-    financial_ssis_file.close()
 
 with open(tournament_path, newline='') as tournament_file:
     date_ids = set()
