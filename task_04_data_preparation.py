@@ -76,7 +76,7 @@ with open(fact_path, newline='') as fact_file:
             player_row.append(row[col_idx_fact['loser_id']])
             player_row.append(row[col_idx_fact['loser_name']])
             player_row.append(row[col_idx_fact['loser_hand']])
-            match_row.append(row[col_idx_fact['loser_age']])
+            player_row.append(row[col_idx_fact['loser_age']])
             player_row.append(row[col_idx_fact['loser_ioc']])
             player_writer.writerow(player_row)
 
