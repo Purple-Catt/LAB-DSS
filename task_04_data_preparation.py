@@ -40,8 +40,9 @@ with open(fact_path, newline='') as fact_file:
                 col_idx_fact[v] = k
 
             match_writer.writerow(['match_id', 'tourney_id', 'winner_id', 'loser_id', 'financial_id', 'score', 'round',
-                                   'best_of', 'spectator', 'match_expenses', 'revenue', 'profit'])
-            player_writer.writerow(['player_id', 'player_name', 'player_hand', 'player_age', 'country_code'])
+                                   'best_of', 'spectator', 'match_expenses', 'revenue',
+                                   'profit', 'winner_age', 'loser_age'])
+            player_writer.writerow(['player_id', 'player_name', 'player_hand', 'country_code'])
             continue
 
         match_row.append(str(match_id))
@@ -58,6 +59,8 @@ with open(fact_path, newline='') as fact_file:
         profit = revenue - float(row[col_idx_fact['match_expenses']])
         match_row.append(str(round(revenue, 2)))
         match_row.append(str(round(profit, 2)))
+        match_row.append(row[col_idx_fact['winner_age']])
+        match_row.append(row[col_idx_fact['loser_age']])
         match_writer.writerow(match_row)
         match_id += 1
 
@@ -66,7 +69,6 @@ with open(fact_path, newline='') as fact_file:
             player_row.append(row[col_idx_fact['winner_id']])
             player_row.append(row[col_idx_fact['winner_name']])
             player_row.append(row[col_idx_fact['winner_hand']])
-            player_row.append(row[col_idx_fact['winner_age']])
             player_row.append(row[col_idx_fact['winner_ioc']])
             player_writer.writerow(player_row)
             player_row = list()
@@ -76,7 +78,6 @@ with open(fact_path, newline='') as fact_file:
             player_row.append(row[col_idx_fact['loser_id']])
             player_row.append(row[col_idx_fact['loser_name']])
             player_row.append(row[col_idx_fact['loser_hand']])
-            player_row.append(row[col_idx_fact['loser_age']])
             player_row.append(row[col_idx_fact['loser_ioc']])
             player_writer.writerow(player_row)
 

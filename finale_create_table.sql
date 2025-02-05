@@ -45,6 +45,9 @@ CREATE TABLE Match (
     spectator INT,
     score VARCHAR(255),
     round VARCHAR(50),
+    match_expenses FLOAT,
+    revenue FLOAT,
+    profit FLOAT,
     winner_age FLOAT,
     loser_age FLOAT
 );

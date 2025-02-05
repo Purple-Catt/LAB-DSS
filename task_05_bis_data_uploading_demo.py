@@ -62,10 +62,9 @@ with pyodbc.connect(params) as conn:
             player_id = int(row[0])
             player_name = row[1]
             player_hand = row[2]
-            player_age = float(row[3])
             country_code = row[4]
-            cursor.execute('INSERT INTO Player_SSIS_python VALUES (?, ?, ?, ?, ?)',
-                           player_id, player_name, player_hand, player_age, country_code)
+            cursor.execute('INSERT INTO Player_SSIS_python VALUES (?, ?, ?, ?)',
+                           player_id, player_name, player_hand, country_code)
 
         cursor.commit()
         cursor.close()
@@ -111,10 +110,12 @@ with pyodbc.connect(params) as conn:
             match_expenses = float(row[9])
             revenue = float(row[10])
             profit = float(row[11])
+            winner_age = float(row[12])
+            loser_age = float(row[13])
 
-            cursor.execute('INSERT INTO Match_SSIS_python VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            cursor.execute('INSERT INTO Match_SSIS_python VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                            match_id, tournament_id, financial_id, winner_id, loser_id, best_of,
-                           spectator, score, roundd, match_expenses, revenue, profit)
+                           spectator, score, roundd, match_expenses, revenue, profit, winner_age, loser_age)
 
         cursor.commit()
         cursor.close()
