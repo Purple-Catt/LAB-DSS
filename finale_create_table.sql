@@ -16,14 +16,7 @@ CREATE TABLE Player (
     player_id VARCHAR(50) PRIMARY KEY,
     player_name VARCHAR(255) NOT NULL,
     player_hand CHAR(1),
-    loc_country VARCHAR(3) REFERENCES Geography(country_code)
-);
-
-CREATE TABLE Financial (
-    financial_id INT PRIMARY KEY,
-    match_expenses FLOAT,
-    revenue FLOAT,
-    profit FLOAT
+    country_code NVARCHAR(10) NOT NULL REFERENCES Geography(country_code)
 );
 
 CREATE TABLE Tournament (
@@ -37,8 +30,7 @@ CREATE TABLE Tournament (
 
 CREATE TABLE Match (
     match_id VARCHAR(50) PRIMARY KEY,
-    tourney_id VARCHAR(50) REFERENCES Tournament(tourney_id),
-    financial_id INT REFERENCES Financial(financial_id),
+    tourney_id NVARCHAR(50) REFERENCES Tournament(tourney_id),
     winner_id VARCHAR(50) REFERENCES Player(player_id),
     loser_id VARCHAR(50) REFERENCES Player(player_id),
     best_of INT,

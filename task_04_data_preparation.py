@@ -39,7 +39,7 @@ with open(fact_path, newline='') as fact_file:
             for k, v in enumerate(row):
                 col_idx_fact[v] = k
 
-            match_writer.writerow(['match_id', 'tourney_id', 'winner_id', 'loser_id', 'financial_id', 'score', 'round',
+            match_writer.writerow(['match_id', 'tourney_id', 'winner_id', 'loser_id', 'score', 'round',
                                    'best_of', 'spectator', 'match_expenses', 'revenue',
                                    'profit', 'winner_age', 'loser_age'])
             player_writer.writerow(['player_id', 'player_name', 'player_hand', 'country_code'])
@@ -49,7 +49,6 @@ with open(fact_path, newline='') as fact_file:
         match_row.append(tourney_id_dict[row[col_idx_fact['tourney']]])
         match_row.append(row[col_idx_fact['winner_id']])
         match_row.append(row[col_idx_fact['loser_id']])
-        match_row.append(str(match_id))
         match_row.append(row[col_idx_fact['score']])
         match_row.append(row[col_idx_fact['round']])
         match_row.append(row[col_idx_fact['best_of']])
