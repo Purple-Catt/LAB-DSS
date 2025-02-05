@@ -1,0 +1,28 @@
+WITH 
+MEMBER [Measures].[Distinct Loser Count] AS
+    COUNT(
+        NONEMPTY(
+           [Loser].[Player Id].[Player Id].MEMBERS, 
+           [Measures].[Match Count]
+        )
+    )
+
+MEMBER [Measures].[Distinct Winner Count] AS
+    COUNT(
+        NONEMPTY(
+            [Winner].[Player Id].[Player Id].MEMBERS, 
+            [Measures].[Match Count]
+        )
+    )
+
+MEMBER [Measures].[Total Distinct Players] AS
+    [Measures].[Distinct Loser Count] + [Measures].[Distinct Winner Count]
+
+SELECT 
+{
+    [Measures].[Distinct Loser Count], 
+    [Measures].[Distinct Winner Count],
+    [Measures].[Total Distinct Players]  
+} ON COLUMNS, 
+[Tournament].[Tourney Id].[Tourney Id].MEMBERS ON ROWS
+FROM [Group ID 10 DB]

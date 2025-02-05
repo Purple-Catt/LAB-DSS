@@ -1,0 +1,25 @@
+WITH 
+MEMBER [Measures].[Profit Margin %] AS 
+    IIF([Measures].[Revenue] > 0, 
+        ([Measures].[Profit] / [Measures].[Revenue]) , 
+        NULL),
+    FORMAT_STRING = "0.00%"
+
+SELECT 
+{
+    [Measures].[Revenue], 
+    [Measures].[Match Expenses], 
+    [Measures].[Profit], 
+    [Measures].[Profit Margin %]
+} ON COLUMNS,
+
+NONEMPTY(
+    FILTER(
+        [Tournament].[Tourney Id].Members * [Tournament].[Year].Members,
+        NOT [Tournament].[Tourney Id].CurrentMember IS [Tournament].[Tourney Id].[All]
+        AND NOT [Tournament].[Year].CurrentMember IS [Tournament].[Year].[All]
+    ),
+    [Measures].[Profit]
+) ON ROWS
+
+FROM [Group ID 10 DB]

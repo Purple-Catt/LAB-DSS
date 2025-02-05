@@ -1,0 +1,20 @@
+WITH MEMBER [Measures].[Player with Max Losses] AS 
+    Tail(
+        Order(
+            Filter(
+                [Loser].[Player Name].[Player Name].Members, 
+                NOT ISEMPTY([Measures].[Match Count])
+            ),
+            [Measures].[Match Count],
+            BDESC
+        ),
+        1
+    ).Item(0).Name
+
+SELECT 
+    {[Measures].[Player with Max Losses]} ON COLUMNS, 
+    NONEMPTY(
+        [Loser].[Country].[Continent].Members, 
+        [Measures].[Match Count]
+    ) ON ROWS
+FROM [Group ID 10 DB]
